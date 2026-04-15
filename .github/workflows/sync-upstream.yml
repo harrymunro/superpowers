@@ -1,0 +1,82 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9:00 UTC
+  workflow_dispatch:       # Manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/obra/superpowers.git
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          UPSTREAM_SHA=$(git rev-parse upstream/main)
+          MERGE_BASE=$(git merge-base HEAD upstream/main)
+          if [ "$UPSTREAM_SHA" = "$MERGE_BASE" ]; then
+            echo "already_up_to_date=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_up_to_date=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Attempt merge
+        if: steps.check.outputs.already_up_to_date == 'false'
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git merge upstream/main --no-edit; then
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          else
+            git merge --abort
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create PR on success
+        if: steps.check.outputs.already_up_to_date == 'false' && steps.merge.outputs.conflict == 'false'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: "chore: sync upstream superpowers changes"
+          body: |
+            Automated sync from [obra/superpowers](https://github.com/obra/superpowers).
+
+            Review the changes and merge when ready.
+          branch: sync-upstream-${{ github.run_id }}
+          base: main
+
+      - name: Create issue on conflict
+        if: steps.check.outputs.already_up_to_date == 'false' && steps.merge.outputs.conflict == 'true'
+        run: |
+          gh issue create \
+            --title "Upstream sync conflict — manual merge needed" \
+            --body "$(cat <<'ISSUE_EOF'
+          Automated merge from [obra/superpowers](https://github.com/obra/superpowers) main branch encountered conflicts. Manual resolution needed:
+
+          ```bash
+          git remote add upstream https://github.com/obra/superpowers.git
+          git fetch upstream main
+          git merge upstream/main
+          # resolve conflicts
+          git commit
+          git push
+          ```
+          ISSUE_EOF
+          )"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
