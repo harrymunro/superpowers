@@ -88,6 +88,10 @@ digraph process {
 - `./spec-reviewer-prompt.md` - Dispatch spec compliance reviewer subagent
 - `./code-quality-reviewer-prompt.md` - Dispatch code quality reviewer subagent
 
+## Model Selection
+
+Always use the most powerful available model for all subagents — implementers, spec reviewers, and code quality reviewers.
+
 ## Example Workflow
 
 ```
