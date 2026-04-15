@@ -1,13 +1,26 @@
 {
   "name": "superpowers",
-  "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques",
-  "version": "4.3.0",
+  "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques. Fork with agent team execution support.",
+  "version": "5.0.7-teams.1",
   "author": {
     "name": "Jesse Vincent",
     "email": "jesse@fsck.com"
   },
-  "homepage": "https://github.com/obra/superpowers",
-  "repository": "https://github.com/obra/superpowers",
+  "contributors": [
+    {
+      "name": "Harry Munro"
+    }
+  ],
+  "homepage": "https://github.com/harrymunro/superpowers-agent-teams",
+  "repository": "https://github.com/harrymunro/superpowers-agent-teams",
   "license": "MIT",
-  "keywords": ["skills", "tdd", "debugging", "collaboration", "best-practices", "workflows"]
+  "keywords": [
+    "skills",
+    "tdd",
+    "debugging",
+    "collaboration",
+    "best-practices",
+    "workflows",
+    "agent-teams"
+  ]
 }

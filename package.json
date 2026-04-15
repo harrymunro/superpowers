@@ -1,0 +1,7 @@
+{
+  "name": "superpowers",
+  "version": "5.0.7-teams.1",
+  "type": "module",
+  "main": ".opencode/plugins/superpowers.js",
+  "repository": "https://github.com/harrymunro/superpowers-agent-teams"
+}
